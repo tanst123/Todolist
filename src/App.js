@@ -1,4 +1,4 @@
-import CounterView from "./counter/view/CouterView"
+import CounterView from "./counter/view/CounterView"
 
 const App = () => {
      return <CounterView/>
