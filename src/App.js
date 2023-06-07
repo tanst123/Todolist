@@ -3,15 +3,19 @@ import CounterView from "./counter/view/CounterView";
 import HomeView from "./home/view/HomeView"
 import TodolistView from "./todolist/view/TodolistView";
 import TitTokView from "./tiktok/view/TiktokView"
+import NotFoundView from "./notfound/view/NotFoundView";
+
 const App = () => {
+   
      return (
         <Router>
             <div className="App">
                 <Routes>
-                    <Route path="/" Component={HomeView}/>
-                    <Route path="/todolist" Component={TodolistView}/>
-                    <Route path="/counter" Component={CounterView}/>
-                    <Route path="/tiktok" Component={TitTokView}/>
+                    <Route path="/" element={<HomeView />}/>
+                    <Route path="/todolist" element={<TodolistView />}/>
+                    <Route path="/counter" element={<CounterView />}/>
+                    <Route path="/tiktok" element={<TitTokView />}/>
+                    <Route path="*" element={<NotFoundView />}/>
                 </Routes>
             </div>
         </Router>
