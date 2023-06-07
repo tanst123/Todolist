@@ -1,5 +1,7 @@
+import CounterView from "./counter/view/CouterView"
+
 const App = () => {
-     return <h1>Hello, world!</h1>;
+     return <CounterView/>
 }
 
 export default App;
