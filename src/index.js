@@ -3,12 +3,21 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-
+import { ThemeProvider } from './tiktok/component/ThemeContext';
+import { ProviderStore } from './notfound/store';
+import ProviderTodo from './todolist/component/ContextTodo';
 const root = ReactDOM.createRoot(document.getElementById('root'));
+
 
 root.render(
   <React.StrictMode>
-    <App />
+    <ProviderTodo>
+      <ProviderStore>
+        <ThemeProvider>
+            <App />
+        </ThemeProvider>
+      </ProviderStore>
+    </ProviderTodo>
   </React.StrictMode> 
 );
 

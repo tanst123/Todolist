@@ -1,3 +1,7 @@
+// https://ant.design/components/input
+// https://github.com/ant-design/ant-design/tree/master/components/input
+
+import React from "react";
 import { BrowserRouter as Router,Route, Routes} from "react-router-dom";
 import CounterView from "./counter/view/CounterView";
 import HomeView from "./home/view/HomeView"
@@ -9,7 +13,7 @@ const App = () => {
    
      return (
         <Router>
-            <div className="App">
+            <div className="App" style={{'backgroundColor':'#f3f3f3'}}>
                 <Routes>
                     <Route path="/" element={<HomeView />}/>
                     <Route path="/todolist" element={<TodolistView />}/>
@@ -19,8 +23,10 @@ const App = () => {
                 </Routes>
             </div>
         </Router>
+        
      )
 }
+
 
 export default App;
 

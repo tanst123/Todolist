@@ -1,10 +1,35 @@
 .todolist-view {
-    width: 100vw;
-    height: 100vh;
-    text-align: center;
-    margin-top: 100px;
-
-    button {
-        margin: 0 20px;
+    height: 100vh; 
+    max-width: 1010px;
+    margin: auto;
+}
+.todolist-header {
+    display: flex;
+    align-items: center;
+    p {
+        margin-left: 12px;
+        font-size: 14px;
+        opacity: 0.6;
+        flex: 1;
     }
+}
+.todolist-container {
+
+}
+.todolist-content {
+
+}
+.form-ant-input {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .form-item-wrap-input {
+        flex: 1;
+    }
+    .form-item-wrap-btn {
+        width: 110px;
+        margin-left: 30px;
+    }
+    
 }
