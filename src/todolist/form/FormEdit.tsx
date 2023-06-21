@@ -1,4 +1,6 @@
-import { Form, Input, Button, DatePicker, Space } from "antd";
+import { Form, Input, Button, DatePicker, Space, Tag, Switch } from "antd";
+import { CloseOutlined, CheckOutlined } from "@ant-design/icons";
+
 import { useContext, useEffect } from "react";
 import { contextTodo } from "../component/ContextTodo";
 import _ from "lodash";
@@ -14,20 +16,24 @@ interface props {
 }
 type setListType = React.Dispatch<React.SetStateAction<listType[]>>
 const FormEdit = ({ initialValues, setOpen, messages }: props) => {
-  const [list, setList] = useContext<[listType[],setListType]> (contextTodo);
+  const {list, setList} = useContext<{list: listType[], setList: setListType}>(contextTodo);
   const [form] = Form.useForm();
+  console.log(initialValues)
   useEffect(() => {
     form.setFieldsValue(initialValues);
   }, [initialValues]);
 
   const onFinish = (valuesForm:listType) => {
+
     let idItem;
     let indexItem:number = 0;
-    const newList = _.map(list, (item:listType, index) => {
+    const newList: listType[] = _.map(list, (item:listType, index: number) => {
       if (item.key === initialValues.key) {
         idItem = item.id;
         indexItem = index;
-        item.job = valuesForm.job;
+        item.id = initialValues.id
+        item.job = valuesForm.job
+        item.isComplete = initialValues.isComplete
         item.note = valuesForm.note;
         item.startDate =
           (valuesForm.date[0].$D < 10
@@ -53,10 +59,9 @@ const FormEdit = ({ initialValues, setOpen, messages }: props) => {
       }
       return item;
     });
-
     axios.put(`http://localhost:3000/course/${idItem}`, newList[indexItem]);
-
-    setList(newList);
+    newList[indexItem] = {...newList[indexItem], job: <Tag color={newList[indexItem].isComplete ? "blue":"red"}>{newList[indexItem].job}</Tag>}
+    setList(newList)
     setOpen(false);
     messages("success", "Todo modified!");
   };

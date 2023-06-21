@@ -1,25 +1,52 @@
-import React from "react";
-import { Button, Table, Popconfirm, Switch, Space } from "antd";
+import "../style/style.scss"
+import React, { useEffect, useState }  from "react";
+import { Button, Table, Popconfirm, Switch, Space, Tag } from "antd";
 import { CloseOutlined, CheckOutlined } from "@ant-design/icons";
 
 import { useContext } from "react";
 import { contextTodo } from "./ContextTodo";
 import { listType } from "../../model";
-
+import ApiUtil from "../utils/ApiUtil";
+import _ from "lodash"
 
 interface props {
-  handleDeleteItem: (record:listType) => void,
+  handleDeleteItem: (record:listType, current: number,setCurrent: React.Dispatch<React.SetStateAction<number>>) => void,
   handleEditItem: (record:listType) => void,
   messages:(type:string | any, descripton: string) => void,
   getListApi: (a: number) => void,
   total: number,
   loading: boolean,
-  setLoading: React.Dispatch<React.SetStateAction<boolean>>
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>,
 }
 type setListType = React.Dispatch<React.SetStateAction<listType[]>>
+
+
 const TableItem = ({ handleDeleteItem, handleEditItem, messages, getListApi,total, loading, setLoading}:props) => {
-  const [list, setList] = useContext<[listType[], setListType ]>(contextTodo);
+  const {list, setList} = useContext<{list: listType[], setList: setListType}>(contextTodo);
+  const [current, setCurrent] = useState<number>(1)
+
   
+  useEffect(() => {
+    if(list?.length < 10) {
+      setCurrent(Math.ceil(total/10))
+    }
+  }, [list?.length])
+
+  const handleChangeSwitch = async (checked:boolean, record:listType) => {
+    if(record.id !== undefined) {
+      const newList:listType[] = _.map(list, (item) => {
+         if(record.id === item.id) {
+           item.isComplete = checked
+           item.job = <Tag color={checked?"blue":"red"}>{record.job.props.children}</Tag>
+         }
+         return item
+      })
+     setList(newList)  
+      await ApiUtil.putApi("http://localhost:3000/course",record.id, {...record, job: record.job.props.children, isComplete: checked})
+    }
+  messages("info", "Todo state updated!");
+};
+
   const columns = [
     {
       title: "Job",
@@ -45,9 +72,12 @@ const TableItem = ({ handleDeleteItem, handleEditItem, messages, getListApi,tota
           <Space>
             <Button onClick={() => handleEditItem(record)}>Edit</Button>
             <Switch
-              checkedChildren={<CheckOutlined />}
-              unCheckedChildren={<CloseOutlined />}
-              onChange={() => handleChangeSwitch(record)}
+                checkedChildren={<CheckOutlined />}
+                unCheckedChildren={<CloseOutlined />}
+                onChange={(checked: boolean) => {
+                  return handleChangeSwitch(checked, record)
+              }}
+              checked={record.isComplete}
             />
           </Space>
         );
@@ -63,7 +93,7 @@ const TableItem = ({ handleDeleteItem, handleEditItem, messages, getListApi,tota
             title="Are you sure you want to delete?"
             okText="Yes"
             cancelText="No"
-            onConfirm={() => handleDeleteItem(record)}
+            onConfirm={() => handleDeleteItem(record, current, setCurrent)}
           >
             <Button type="primary" danger>
               <CloseOutlined />
@@ -74,42 +104,21 @@ const TableItem = ({ handleDeleteItem, handleEditItem, messages, getListApi,tota
     },
   ];
 
-  // const data = list?.map((item) => {
-  //   return {
-  //     key: item.key,
-  //     job: <Tag color={"red"}>{item.job}</Tag>,
-  //     startDate: item.startDate,
-  //     endDate: item.endDate,
-  //     note: item.note,
-  //     date: item.date,
-  //   };
-  // });
-
-  const handleChangeSwitch = (record:listType) => {
-    const item = document.querySelector(`tr[data-row-key="${record.key}"]`);
-    const spanChange = item?.querySelector("span");
-
-    if (spanChange?.classList.contains("ant-tag-red")) {
-      spanChange?.classList.replace("ant-tag-red", "ant-tag-blue");
-    } else {
-      spanChange?.classList.replace("ant-tag-blue", "ant-tag-red");
-    }
-
-    messages("info", "Todo state updated!");
-  };
-
+ 
+ 
   
   return (
     <Table
       loading={loading}
       pagination={{
         pageSize: 10,
-        defaultCurrent: 1,
+        current: current,
         total: total,
         onChange: (page) => {
+          setLoading(true)
           setTimeout(() => {
-            setLoading(true)
             getListApi(page)
+            setCurrent(page)
           }, 100)
         },
       }}

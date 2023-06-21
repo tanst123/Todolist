@@ -9,28 +9,29 @@ interface props {
   total: number,
   setTotal: React.Dispatch<React.SetStateAction<number>>,
   getListApi: (a: number) => void,
+  setLoading:  React.Dispatch<React.SetStateAction<boolean>>
 }
 
 export interface setOpen {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>
 } 
-const ModalForm= forwardRef(({ messages, total, setTotal, getListApi }:props, ref) => {
+const ModalForm= forwardRef(({ messages, total, setTotal, getListApi, setLoading }:props, ref) => {
   const [open, setOpen] = useState<boolean>(false);
   const [initialValues, setInitialValues] = useState<listType | null>(null);
 
   useImperativeHandle(ref, () => ({
     setOpenForward: (value:boolean, record:listType|any) => {
       setOpen(value);
-      record
-        ? setInitialValues({ ...record, job: record.job})
-        : setInitialValues(null);
+      record === null
+      ? setInitialValues(null) 
+      : setInitialValues({ ...record, job: record.job.props.children});
     },
   }));
-
   const handleOk = () => {};
   const handleCancel = () => {
     setOpen(false);
   };
+
 
   return (
     <Modal open={open} onOk={handleOk} onCancel={handleCancel} footer={null}>
@@ -41,6 +42,7 @@ const ModalForm= forwardRef(({ messages, total, setTotal, getListApi }:props, re
           setTotal={setTotal}
           messages={messages}
           getListApi = {getListApi}
+          setLoading={setLoading}
         />
       ) : (
         <FormEdit

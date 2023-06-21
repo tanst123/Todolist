@@ -6,26 +6,26 @@ import dayjs from "dayjs";
 import React from "react";
 
 import "../style/style.scss";
-// import Form from "../form/FormCreate";
-// import ListItem from "../component/List";
 import { contextTodo } from "../component/ContextTodo";
 import ModalForm from "../component/ModalForm";
 import TableItem from "../component/Table";
 import { listType } from "../../model";
  import { v4 as uuidv4 } from "uuid"
-import ApiUtil from "../utils/ApiUtil";
+
 
 interface RefObject {
   setOpenForward: (a: boolean, b:listType | null) => void
 }
 type setListType = React.Dispatch<React.SetStateAction<listType[]>>
+
 const TodolistView:React.FC = () => {
   const [messageApi, contextHolder] = message.useMessage();
-  const [list, setList] = useContext<[listType[], setListType ]>(contextTodo);
+  const {list, setList} = useContext<{list: listType[], setList: setListType}>(contextTodo);
   const [total, setTotal] = useState<number>(0);
   const refModal = useRef<RefObject>(null);
   const [loading, setLoading] = useState<boolean>(false)
-  
+
+  // Gọi API sau khi component đưa elements vào DOM
   useEffect(() => {
    const idSetTimeout = setTimeout(() => {
       setLoading(true)
@@ -41,18 +41,14 @@ const TodolistView:React.FC = () => {
     });
   };
 
-  const handleDeleteItem = (record:listType) => {
-    const item = list.find((item) => item?.key === record.key);
-      axios.delete(`http://localhost:3000/course/${item?.id}`);
-    const data = list.filter((item) => item.key !== record.key);
-    const totalCurrent = total - 1;
-    setTotal(total - 1);
-    setList(data);
-    setTimeout(() => {
-      setLoading(true)
-      getListApi(Math.ceil(totalCurrent/10))
-    }, 100)
-    
+  const handleDeleteItem = async (record:listType, current:number, setCurrent: React.Dispatch<React.SetStateAction<number>>) => {
+    await axios.delete(`http://localhost:3000/course/${record?.id}`);
+    setLoading(true)
+    if((current - 1)* 10 === total - 1 && current !== 1){
+      getListApi(current - 1)
+      setCurrent(current - 1)
+    }
+    else getListApi(current)
     messages("warning","Todo removed!");
    
   };
@@ -65,19 +61,20 @@ const TodolistView:React.FC = () => {
     refModal?.current?.setOpenForward(true, null);
   };
 
-  const getListApi = (page: number) => {
-    axios
+  const getListApi = async (page: number) => {
+   await axios
     .get(
       `http://localhost:3000/course?_start=0&_page=${page}&_limit=10`
     )
     .then((res) => {
-      setTotal(res.headers["x-total-count"]);
-      const data = res.data.map((item:listType, index:number) => {
+        setTotal(res.headers["x-total-count"]);
+        const data:listType[] = res.data.map((item:listType, index:number) => {
         const startDate:any = dayjs(item.startDate, "DD/MM/YYYY");
         const endDate:any = dayjs(item.endDate, "DD/MM/YYYY");
         return {
           ...item,
           key: uuidv4(),
+          job: <Tag color={item.isComplete ? "blue": "red"}>{item.job}</Tag>,
           date: [startDate, endDate],
           startDate:
             (startDate.$D < 10 ? "0" + startDate.$D : startDate.$D) +
@@ -101,19 +98,19 @@ const TodolistView:React.FC = () => {
       setLoading(false)
     });
   }
-  
+
   const handleSearchByJob = (value = "") => {
     axios
       .get(`http://localhost:3000/course?_start=0&job=${value}`)
       .then((res) => {
-        setTotal(res.headers["x-total-count"]);
+        
         const data = res.data.map((item:listType) => {
           const startDate:any = dayjs(item.startDate, "DD/MM/YYYY");
           const endDate:any = dayjs(item.endDate, "DD/MM/YYYY");
           return {
             ...item,
             key: uuidv4(),
-            job: <Tag>{item.job}</Tag>,
+            job: <Tag color={item.isComplete ? "blue": "red"}>{item.job}</Tag>,
             date: [startDate, endDate],
             startDate:
               (startDate.$D < 10 ? "0" + startDate.$D : startDate.$D) +
@@ -133,32 +130,23 @@ const TodolistView:React.FC = () => {
               endDate.$y,
           };
         });
+        setTotal(data.length)
         setList(data);
       });
   };
   return (
     <div className="todolist-view">
       {contextHolder}
-      {/* <div className="todolist-header">
-        <h4>Add Todo</h4>
-        <p>To add a todo, just fill the form below and click in add todo.</p>
-      </div> */}
+     
       <div className="todolist-container">
         <div className="todolist-content">
           <Space direction="vertical" style={{ display: "flex" }}>
-            {/* <Card title="Create a new todo">
-              <Form
-                onFinish={onFinish}
-                onFinishFailed={onFinishFailed}
-                refButton={refButton}
-              />
-            </Card> */}
             <Input.Search
               placeholder="Tìm kiếm..."
               enterButton
               style={{ width: "300px" }}
               onSearch={(e) => handleSearchByJob(e)}
-            ></Input.Search>
+            />
             <Card
               title="Todo List"
               extra={
@@ -171,11 +159,6 @@ const TodolistView:React.FC = () => {
                 </Button>
               }
             >
-              {/* <ListItem 
-                      list={list}
-                      handleDeleteItem = {handleDeleteItem}
-                      messages = {messages}
-                  /> */}
               <TableItem
                 getListApi = {getListApi}
                 handleDeleteItem={handleDeleteItem}
@@ -192,6 +175,7 @@ const TodolistView:React.FC = () => {
               total={total}
               setTotal={setTotal}
               messages={messages}
+              setLoading={setLoading}
             />
           </Space>
         </div>

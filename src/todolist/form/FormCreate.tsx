@@ -1,15 +1,12 @@
-import { Form, Input, Button, DatePicker, Space } from "antd";
+import { Form, Input, Button, DatePicker, Space, Switch } from "antd";
 import { PlusCircleOutlined } from "@ant-design/icons";
-import { useContext, useRef } from "react";
-import { contextTodo } from "../component/ContextTodo";
+import { CloseOutlined, CheckOutlined } from "@ant-design/icons";
 import { v4 as uuidv4 } from "uuid";
-import axios from "axios";
 import { listType } from "../../model";
 import React from "react";
 import { ValidateErrorEntity } from "rc-field-form/lib/interface";
-import dayjs from 'dayjs';
 import type { Dayjs } from 'dayjs';
-// import ApiUtil from "../utils/ApiUtil";
+import ApiUtil from "../utils/ApiUtil";
 const dateFormat = "DD/MM/YYYY";
 interface props {
   messages: (type:string | any, descripton: string) => void,
@@ -17,25 +14,24 @@ interface props {
   setTotal: React.Dispatch<React.SetStateAction<number>>,
   setOpen: React.Dispatch<React.SetStateAction<boolean>>,
   getListApi: (a: number) => void,
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 interface eventType extends listType {
   date: [Dayjs, Dayjs] | any
 }
-type setListType = React.Dispatch<React.SetStateAction<listType[]>>
+
 export interface RefObject {
   RefObject: () => void,
 }
-const FormCreate:React.FC<props> = ({ messages, total, setTotal, setOpen, getListApi }) => {
+const FormCreate:React.FC<props> = ({ messages, total, setOpen, getListApi, setLoading }) => {
   const { RangePicker } = DatePicker;
-  const [list, setList] = useContext<[listType[], setListType]>(contextTodo);
-  const refButton = useRef<HTMLButtonElement>(null);
   const [form] = Form.useForm()
 
-  const onFinish = (e:eventType) => {
-  
-      const job = {
+  const onFinish = async(e:eventType) => {
+      const job:listType = {
         key: uuidv4(),
+        isComplete: e.isComplete,
         job: e.job,
         startDate:
           (e.date[0].$D < 10 ? "0" + e.date[0].$D : e.date[0].$D) +
@@ -53,21 +49,18 @@ const FormCreate:React.FC<props> = ({ messages, total, setTotal, setOpen, getLis
             : +e.date[1].$M + 1) +
           "/" +
           e.date[1].$y,
-        note: e.note,
+        note: e.note || "",
         date: e.date,
       };
-    axios.post("http://localhost:3000/course", job);
-    setTotal(+total + 1);
-    setList(list)
+       
+     await ApiUtil.postApi("http://localhost:3000/course", job);
+    setLoading(true)
+    getListApi(Math.ceil((+total + 1)/10))
+
     messages("success", "Todo added!");
-    if(refButton.current !== null)
-    refButton.current.type = "reset";
-    setTimeout(() => {
-    if(refButton.current !== null)
-      refButton.current.type = "submit";
-    }, 100);
+ 
+    form.resetFields(undefined)
     setOpen(false)
-    form.setFieldsValue(null)
   };
 
   const onFinishFailed = (errorInfo: ValidateErrorEntity) => {
@@ -77,10 +70,10 @@ const FormCreate:React.FC<props> = ({ messages, total, setTotal, setOpen, getLis
     <Form
       form={form}
       className="form-ant-input"
-      initialValues={{ remember: true }}
       onFinish={onFinish}
       onFinishFailed={onFinishFailed}
       autoComplete="off"
+
     >
       <Space direction="vertical" style={{ width: "100%" }}>
         <Form.Item
@@ -103,13 +96,22 @@ const FormCreate:React.FC<props> = ({ messages, total, setTotal, setOpen, getLis
         >
           <RangePicker format={dateFormat} style={{ width: "100%" }} />
         </Form.Item>
-
+        
         <Form.Item className="form-item-wrap" label="Note: " name="note">
-          <Input />
+          <Input placeholder="Note for you...." />
+        </Form.Item>
+        <Form.Item
+          className="form-item-wrap"
+          label="Switch: "
+          name="isComplete"
+        >
+          <Switch
+               checkedChildren={<CheckOutlined />}
+               unCheckedChildren={<CloseOutlined />}
+          />
         </Form.Item>
         <Form.Item style={{ display: "flex", justifyContent: "center" }}>
           <Button
-            ref={refButton}
             type="primary"
             htmlType="submit"
             icon={<PlusCircleOutlined />}
