@@ -1,16 +1,18 @@
 import "../style/style.scss"
 import React, { useEffect, useState }  from "react";
-import { Button, Table, Popconfirm, Switch, Space, Tag } from "antd";
+import { Button, Table, Popconfirm, Switch, Space, Tag, Skeleton } from "antd";
 import { CloseOutlined, CheckOutlined } from "@ant-design/icons";
-
+import axios from "axios";
 import { useContext } from "react";
 import { contextTodo } from "./ContextTodo";
 import { listType } from "../../model";
 import ApiUtil from "../utils/ApiUtil";
 import _ from "lodash"
 
+
+
 interface props {
-  handleDeleteItem: (record:listType, current: number,setCurrent: React.Dispatch<React.SetStateAction<number>>) => void,
+  // handleDeleteItem: (record:listType, current: number,setCurrent: React.Dispatch<React.SetStateAction<number>>) => void,
   handleEditItem: (record:listType) => void,
   messages:(type:string | any, descripton: string) => void,
   getListApi: (a: number) => void,
@@ -21,16 +23,28 @@ interface props {
 type setListType = React.Dispatch<React.SetStateAction<listType[]>>
 
 
-const TableItem = ({ handleDeleteItem, handleEditItem, messages, getListApi,total, loading, setLoading}:props) => {
+const TableItem = ( {handleEditItem, messages, getListApi,total, loading, setLoading}:props) => {
   const {list, setList} = useContext<{list: listType[], setList: setListType}>(contextTodo);
   const [current, setCurrent] = useState<number>(1)
-
   
+
   useEffect(() => {
     if(list?.length < 10) {
       setCurrent(Math.ceil(total/10))
     }
-  }, [list?.length])
+  }, [list])
+  
+  const handleDeleteItem = async (record:listType) => {
+    await axios.delete(`http://localhost:3000/course/${record?.id}`);
+    setLoading(true)
+    if((current - 1)* 10 === total - 1 && current !== 1){
+      getListApi(current - 1)
+      setCurrent(current - 1)
+    }
+    else getListApi(current)
+    messages("warning","Todo removed!");
+   
+  };
 
   const handleChangeSwitch = async (checked:boolean, record:listType) => {
     if(record.id !== undefined) {
@@ -41,7 +55,7 @@ const TableItem = ({ handleDeleteItem, handleEditItem, messages, getListApi,tota
          }
          return item
       })
-     setList(newList)  
+     setList(newList)
       await ApiUtil.putApi("http://localhost:3000/course",record.id, {...record, job: record.job.props.children, isComplete: checked})
     }
   messages("info", "Todo state updated!");
@@ -93,7 +107,7 @@ const TableItem = ({ handleDeleteItem, handleEditItem, messages, getListApi,tota
             title="Are you sure you want to delete?"
             okText="Yes"
             cancelText="No"
-            onConfirm={() => handleDeleteItem(record, current, setCurrent)}
+            onConfirm={() => handleDeleteItem(record)}
           >
             <Button type="primary" danger>
               <CloseOutlined />
@@ -104,9 +118,8 @@ const TableItem = ({ handleDeleteItem, handleEditItem, messages, getListApi,tota
     },
   ];
 
- 
- 
-  
+  if(loading) return <Skeleton></Skeleton> 
+
   return (
     <Table
       loading={loading}
@@ -114,12 +127,9 @@ const TableItem = ({ handleDeleteItem, handleEditItem, messages, getListApi,tota
         pageSize: 10,
         current: current,
         total: total,
-        onChange: (page) => {
-          setLoading(true)
-          setTimeout(() => {
-            getListApi(page)
-            setCurrent(page)
-          }, 100)
+        onChange: (page:number) => {
+              setCurrent(page)
+              getListApi(page)
         },
       }}
       columns={columns}

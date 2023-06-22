@@ -18,7 +18,7 @@ type setListType = React.Dispatch<React.SetStateAction<listType[]>>
 const FormEdit = ({ initialValues, setOpen, messages }: props) => {
   const {list, setList} = useContext<{list: listType[], setList: setListType}>(contextTodo);
   const [form] = Form.useForm();
-  console.log(initialValues)
+  
   useEffect(() => {
     form.setFieldsValue(initialValues);
   }, [initialValues]);

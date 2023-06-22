@@ -53,8 +53,8 @@ const FormCreate:React.FC<props> = ({ messages, total, setOpen, getListApi, setL
         date: e.date,
       };
        
-     await ApiUtil.postApi("http://localhost:3000/course", job);
     setLoading(true)
+    await ApiUtil.postApi("http://localhost:3000/course", job);
     getListApi(Math.ceil((+total + 1)/10))
 
     messages("success", "Todo added!");
@@ -66,6 +66,7 @@ const FormCreate:React.FC<props> = ({ messages, total, setOpen, getListApi, setL
   const onFinishFailed = (errorInfo: ValidateErrorEntity) => {
     console.log("Failed:", errorInfo);
   };
+  
   return (
     <Form
       form={form}

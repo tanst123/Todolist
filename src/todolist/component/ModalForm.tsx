@@ -1,4 +1,4 @@
-import { Modal } from "antd";
+import { Modal, Skeleton } from "antd";
 import { useState, forwardRef, useImperativeHandle } from "react";
 import React from 'react'
 import FormEdit from "../form/FormEdit";
@@ -32,7 +32,7 @@ const ModalForm= forwardRef(({ messages, total, setTotal, getListApi, setLoading
     setOpen(false);
   };
 
-
+ if(open === false) return 
   return (
     <Modal open={open} onOk={handleOk} onCancel={handleCancel} footer={null}>
       {initialValues === null ? (
