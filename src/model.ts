@@ -1,4 +1,5 @@
 import React from 'react'
+import { type Dayjs } from 'dayjs';
 export interface listType {
     id?: number,
     key?: string | Function,
@@ -6,7 +7,7 @@ export interface listType {
     startDate?: string,
     endDate?:string,
     note?: string,
-    date?: string | any,
+    date?: [Dayjs, Dayjs] | any,
     isComplete: boolean
   }
   export interface setListType {

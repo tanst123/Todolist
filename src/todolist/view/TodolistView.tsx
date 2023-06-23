@@ -1,10 +1,9 @@
 import { useRef, useContext, useEffect, useState } from "react";
-import { Button, Card, message, Space, Input, Tag, Skeleton, Spin } from "antd";
+import { Button, Card, message, Space, Input, Tag, Skeleton } from "antd";
 import axios from "axios";
 import { PlusCircleOutlined } from "@ant-design/icons";
-import dayjs from "dayjs";
+import dayjs, {type  Dayjs} from "dayjs";
 import React from "react";
-import useMergeState from "../reactCustom/useMergeState";
 
 import "../style/style.scss";
 import { contextTodo } from "../component/ContextTodo";
@@ -27,7 +26,7 @@ const TodolistView:React.FC = () => {
   const [total, setTotal] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true)
   const refModal = useRef<RefObject>(null);
-  
+  const [current, setCurrent] = useState<number>(1)
 
   // Gọi API sau khi component đưa elements vào DOM
   useEffect(() => {
@@ -60,8 +59,8 @@ const TodolistView:React.FC = () => {
     .then((res) => {
         setTotal(res.headers["x-total-count"]);
         const data:listType[] = res.data.map((item:listType, index:number) => {
-        const startDate:any = dayjs(item.startDate, "DD/MM/YYYY");
-        const endDate:any = dayjs(item.endDate, "DD/MM/YYYY");
+        const startDate: any = dayjs(item.startDate, "DD/MM/YYYY");
+        const endDate: any = dayjs(item.endDate, "DD/MM/YYYY");
         return {
           ...item,
           key: uuidv4(),
@@ -86,9 +85,12 @@ const TodolistView:React.FC = () => {
         };
       });
       setList(data);
+      setCurrent(page);
       setLoading(false)
     });
   }
+      
+
   const handleSearchByJob = (value = "") => {
     axios
       .get(`http://localhost:3000/course?_start=0&job=${value}`)
@@ -124,7 +126,7 @@ const TodolistView:React.FC = () => {
       });
   };
   if(loading) return <Skeleton></Skeleton> 
-
+console.log('view')
   return (
     <div className="todolist-view">
       {contextHolder}
@@ -158,6 +160,8 @@ const TodolistView:React.FC = () => {
                 total={total}
                 loading={loading}
                 setLoading = {setLoading}
+                current={current}
+                setCurrent={setCurrent}
               />
             </Card>
             <ModalForm

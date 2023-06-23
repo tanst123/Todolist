@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from "uuid";
 import { listType } from "../../model";
 import React from "react";
 import { ValidateErrorEntity } from "rc-field-form/lib/interface";
-import type { Dayjs } from 'dayjs';
+import dayjs from 'dayjs';
 import ApiUtil from "../utils/ApiUtil";
 const dateFormat = "DD/MM/YYYY";
 interface props {
@@ -17,18 +17,15 @@ interface props {
   setLoading: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-interface eventType extends listType {
-  date: [Dayjs, Dayjs] | any
-}
 
 export interface RefObject {
   RefObject: () => void,
 }
 const FormCreate:React.FC<props> = ({ messages, total, setOpen, getListApi, setLoading }) => {
-  const { RangePicker } = DatePicker;
+  const { RangePicker }= DatePicker;
   const [form] = Form.useForm()
 
-  const onFinish = async(e:eventType) => {
+  const onFinish = async(e:listType) => {
       const job:listType = {
         key: uuidv4(),
         isComplete: e.isComplete,

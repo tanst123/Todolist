@@ -15,29 +15,23 @@ interface props {
   // handleDeleteItem: (record:listType, current: number,setCurrent: React.Dispatch<React.SetStateAction<number>>) => void,
   handleEditItem: (record:listType) => void,
   messages:(type:string | any, descripton: string) => void,
-  getListApi: (a: number) => void,
+  getListApi: (a: number, setCurrent?: any) => void,
   total: number,
   loading: boolean,
   setLoading: React.Dispatch<React.SetStateAction<boolean>>,
+  current: number,
+  setCurrent: React.Dispatch<React.SetStateAction<number>>
 }
 type setListType = React.Dispatch<React.SetStateAction<listType[]>>
 
 
-const TableItem = ( {handleEditItem, messages, getListApi,total, loading, setLoading}:props) => {
+const TableItem = ( {handleEditItem, messages, getListApi,total, loading, setLoading, current, setCurrent}:props) => {
   const {list, setList} = useContext<{list: listType[], setList: setListType}>(contextTodo);
-  const [current, setCurrent] = useState<number>(1)
-  
-
-  useEffect(() => {
-    if(list?.length < 10) {
-      setCurrent(Math.ceil(total/10))
-    }
-  }, [list])
   
   const handleDeleteItem = async (record:listType) => {
-    await axios.delete(`http://localhost:3000/course/${record?.id}`);
     setLoading(true)
-    if((current - 1)* 10 === total - 1 && current !== 1){
+    await axios.delete(`http://localhost:3000/course/${record?.id}`);
+       if((current - 1)* 10 === total - 1 && current !== 1){
       getListApi(current - 1)
       setCurrent(current - 1)
     }
@@ -46,6 +40,12 @@ const TableItem = ( {handleEditItem, messages, getListApi,total, loading, setLoa
    
   };
 
+  const handleChangePage = (page:number) => {
+    setLoading(true)
+    setCurrent(page)
+    getListApi(page)
+    
+  }
   const handleChangeSwitch = async (checked:boolean, record:listType) => {
     if(record.id !== undefined) {
       const newList:listType[] = _.map(list, (item) => {
@@ -119,7 +119,7 @@ const TableItem = ( {handleEditItem, messages, getListApi,total, loading, setLoa
   ];
 
   if(loading) return <Skeleton></Skeleton> 
-
+  
   return (
     <Table
       loading={loading}
@@ -127,10 +127,7 @@ const TableItem = ( {handleEditItem, messages, getListApi,total, loading, setLoa
         pageSize: 10,
         current: current,
         total: total,
-        onChange: (page:number) => {
-              setCurrent(page)
-              getListApi(page)
-        },
+        onChange: (page) => handleChangePage(page)
       }}
       columns={columns}
       dataSource={list}

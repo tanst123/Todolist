@@ -8,7 +8,7 @@ interface props {
   messages: (type:string | any, descripton: string) => void,
   total: number,
   setTotal: React.Dispatch<React.SetStateAction<number>>,
-  getListApi: (a: number) => void,
+  getListApi: (a: number, setCurrent?: any) => void,
   setLoading:  React.Dispatch<React.SetStateAction<boolean>>
 }
 
