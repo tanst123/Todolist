@@ -1,4 +1,5 @@
 import { Form, Input, Button, DatePicker, Space, Tag } from "antd";
+import dayjs, {type Dayjs} from 'dayjs'
 // import { CloseOutlined, CheckOutlined } from "@ant-design/icons";
 
 import { useContext, useEffect } from "react";
@@ -15,46 +16,34 @@ interface props {
   messages: (type:string | any, descripton: string) => void
 }
 type setListType = React.Dispatch<React.SetStateAction<listType[]>>
-const FormEdit = ({ initialValues, setOpen, messages }: props) => {
+const FormEdit = ({setOpen, messages, initialValues }: props) => {
   const {list, setList} = useContext<{list: listType[], setList: setListType}>(contextTodo);
   const [form] = Form.useForm();
-  
+  console.log(initialValues)
   useEffect(() => {
     form.setFieldsValue(initialValues);
   }, [initialValues]);
 
   const onFinish = (valuesForm:listType) => {
-
+    
     let idItem;
     let indexItem:number = 0;
     const newList: listType[] = _.map(list, (item:listType, index: number) => {
+      let startDate: string = '';
+      let endDate: string = '';
       if (item.key === initialValues.key) {
+        if(valuesForm.date !== undefined) {
+           startDate = dayjs(valuesForm.date[0]).format('DD/MM/YYYY')
+           endDate= dayjs(valuesForm.date[1]).format('DD/MM/YYYY') 
+        }
         idItem = item.id;
         indexItem = index;
         item.id = initialValues.id
         item.job = valuesForm.job
         item.isComplete = initialValues.isComplete
         item.note = valuesForm.note;
-        item.startDate =
-          (valuesForm.date[0].$D < 10
-            ? "0" + valuesForm.date[0].$D
-            : valuesForm.date[0].$D) +
-          "/" +
-          (+valuesForm.date[0].$M + 1 < 10
-            ? "0" + (+valuesForm.date[0].$M + 1)
-            : +valuesForm.date[0].$M + 1) +
-          "/" +
-          valuesForm.date[0].$y;
-        item.endDate =
-          (valuesForm.date[1].$D < 10
-            ? "0" + valuesForm.date[1].$D
-            : valuesForm.date[1].$D) +
-          "/" +
-          (+valuesForm.date[1].$M + 1 < 10
-            ? "0" + (+valuesForm.date[1].$M + 1)
-            : +valuesForm.date[1].$M + 1) +
-          "/" +
-          valuesForm.date[1].$y;
+        item.startDate = startDate
+        item.endDate = endDate
         item.date = valuesForm.date;
       }
       return item;

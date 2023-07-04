@@ -2,7 +2,7 @@ import { useRef, useContext, useEffect, useState } from "react";
 import { Button, Card, message, Space, Input, Tag, Skeleton } from "antd";
 import axios from "axios";
 import { PlusCircleOutlined } from "@ant-design/icons";
-import dayjs, {type  Dayjs} from "dayjs";
+import dayjs from "dayjs";
 import React from "react";
 
 import "../style/style.scss";
@@ -22,7 +22,6 @@ const TodolistView:React.FC = () => {
 
   const [messageApi, contextHolder] = message.useMessage();
   const { setList} = useContext<{list: listType[], setList: setListType}>(contextTodo);
-  // const [data, setData] = useMergeState({total: 0, loading: true});
   const [total, setTotal] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true)
   const refModal = useRef<RefObject>(null);
@@ -59,31 +58,21 @@ const TodolistView:React.FC = () => {
     .then((res) => {
         setTotal(res.headers["x-total-count"]);
         const data:listType[] = res.data.map((item:listType, index:number) => {
-        const startDate: any = dayjs(item.startDate, "DD/MM/YYYY");
-        const endDate: any = dayjs(item.endDate, "DD/MM/YYYY");
+          var startDate: string = ''
+          var endDate: string =''
+          if(item.date !== undefined) {
+             startDate = dayjs(item?.date[0]).format('DD/MM/YYYY')
+             endDate = dayjs(item?.date[1]).format('DD/MM/YYYY')
+          }
         return {
           ...item,
           key: uuidv4(),
           job: <Tag color={item.isComplete ? "blue": "red"}>{item.job}</Tag>,
-          date: [startDate, endDate],
-          startDate:
-            (startDate.$D < 10 ? "0" + startDate.$D : startDate.$D) +
-            "/" +
-            (+startDate.$M + 1 < 10
-              ? "0" + (+startDate.$M + 1)
-              : +startDate.$M + 1) +
-            "/" +
-            startDate.$y,
-          endDate:
-            (endDate.$D < 10 ? "0" + endDate.$D : endDate.$D) +
-            "/" +
-            (+endDate.$M + 1 < 10
-              ? "0" + (+endDate.$M + 1)
-              : +endDate.$M + 1) +
-            "/" +
-            endDate.$y,
+          startDate: startDate,
+          endDate: endDate
         };
       });
+      console.log(data)
       setList(data);
       setCurrent(page);
       setLoading(false)

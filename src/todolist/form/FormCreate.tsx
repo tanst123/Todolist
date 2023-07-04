@@ -26,28 +26,20 @@ const FormCreate:React.FC<props> = ({ messages, total, setOpen, getListApi, setL
   const [form] = Form.useForm()
 
   const onFinish = async(e:listType) => {
+    let startDate: string = '';
+    let endDate: string = '';
+    if(e.date !== undefined) {
+      startDate = dayjs(e.date[0]).format('DD/MM/YYYY')
+      endDate = dayjs(e.date[1]).format('DD/MM/YYYY')
+    }
       const job:listType = {
         key: uuidv4(),
         isComplete: e.isComplete,
         job: e.job,
-        startDate:
-          (e.date[0].$D < 10 ? "0" + e.date[0].$D : e.date[0].$D) +
-          "/" +
-          (+e.date[0].$M + 1 < 10
-            ? "0" + (+e.date[0].$M + 1)
-            : +e.date[0].$M + 1) +
-          "/" +
-          e.date[0].$y,
-        endDate:
-          (e.date[1].$D < 10 ? "0" + e.date[1].$D : e.date[1].$D) +
-          "/" +
-          (+e.date[1].$M + 1 < 11
-            ? "0" + (+e.date[1].$M + 1)
-            : +e.date[1].$M + 1) +
-          "/" +
-          e.date[1].$y,
+        startDate: startDate,
+        endDate: endDate,
         note: e.note || "",
-        date: e.date,
+        date: e.date
       };
        
     setLoading(true)

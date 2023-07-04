@@ -7,7 +7,7 @@ export interface listType {
     startDate?: string,
     endDate?:string,
     note?: string,
-    date?: [Dayjs, Dayjs] | any,
+    date?: [Dayjs, Dayjs],
     isComplete: boolean
   }
   export interface setListType {

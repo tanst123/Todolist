@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Layout, Menu, Button } from "antd";
 import {
   MenuUnfoldOutlined,
@@ -6,27 +6,38 @@ import {
   UnorderedListOutlined,
   PlusCircleOutlined,
   GithubFilled,
+  HomeFilled
 } from "@ant-design/icons";
 import "../style/style.scss";
 import React, { useState } from "react";
 
 const { Sider, Header, Content, Footer } = Layout;
-
+interface menuType  {
+  key: string,
+  icon: React.ReactNode,
+  label: string
+}
 const arrLinks = [
   {
-    key: 1,
+    key: "",
+    icon: <HomeFilled />,
+    label: "Home",
+  },
+  {
+    key: "tiktok",
     icon: <GithubFilled />,
-    label: <Link to="/tiktok">Tiktok</Link>,
+    label: "Tiktok",
   },
+ 
   {
-    key: 2,
+    key: "todolist",
     icon: <UnorderedListOutlined />,
-    label: <Link to="/todolist">Todolist</Link>,
+    label: "Todolist",
   },
   {
-    key: 3,
+    key: "counter",
     icon: <PlusCircleOutlined />,
-    label: <Link to="/counter">Counter</Link>,
+    label: "Counter",
   },
 ];
 
@@ -37,18 +48,15 @@ interface Props{
 
 const HomeView:React.FC<Props> = ({children}) => {
   const [collapsed, setCollapsed] = useState<boolean>(false);
+  const navigative = useNavigate()
+  const handleClick:any= (item: menuType) => {
+      navigative(`/${item.key}`)
+  }
   return (
     <div className="home-view">
-      {/* <ul>
-                {arrLinks.map((arrLink, index) => (
-                    <li key={index}>
-                         <Link to={arrLink.to}>{arrLink.label}</Link>
-                    </li>
-                ))}
-            </ul> */}
       <Layout style={{ height: "100%", width: "100%" }}>
         <Sider collapsible collapsed={collapsed}>
-          <Menu theme="dark" items={arrLinks} style={{ fontSize: "18px" }} />
+          <Menu theme="dark" onClick={handleClick} items={arrLinks} style={{ fontSize: "18px" }} />
         </Sider>
         <Layout>
           <Header style={{ padding: 0, backgroundColor: "#fff" }}>

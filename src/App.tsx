@@ -39,7 +39,7 @@ const App:React.FC = () => {
               </HomeView>
             }
           />
-          <Route path="/" element={<NotFoundView />} />
+          <Route path="*" element={<NotFoundView />} />
         </Routes>
       </div>
     </Router>

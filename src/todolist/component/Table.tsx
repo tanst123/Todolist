@@ -117,13 +117,12 @@ const TableItem = ( {handleEditItem, messages, getListApi,total, loading, setLoa
       },
     },
   ];
-
-  if(loading) return <Skeleton></Skeleton> 
   
   return (
-    <Table
-      loading={loading}
-      pagination={{
+    <>
+<Table
+       loading={loading}
+        pagination={{
         pageSize: 10,
         current: current,
         total: total,
@@ -131,7 +130,11 @@ const TableItem = ( {handleEditItem, messages, getListApi,total, loading, setLoa
       }}
       columns={columns}
       dataSource={list}
-    />
+      
+/>
+      {/* {loading &&<Skeleton></Skeleton> }  */}
+    </>
+    
   );
 };
 export default TableItem;

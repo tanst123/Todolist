@@ -1,9 +1,12 @@
-import { Modal, Skeleton } from "antd";
+import { Modal } from "antd";
 import { useState, forwardRef, useImperativeHandle } from "react";
 import React from 'react'
 import FormEdit from "../form/FormEdit";
 import FormCreate from "../form/FormCreate";
 import { listType } from "../../model";
+import dayjs from "dayjs";
+
+
 interface props {
   messages: (type:string | any, descripton: string) => void,
   total: number,
@@ -24,7 +27,7 @@ const ModalForm= forwardRef(({ messages, total, setTotal, getListApi, setLoading
       setOpen(value);
       record === null
       ? setInitialValues(null) 
-      : setInitialValues({ ...record, job: record.job.props.children});
+      : setInitialValues({ ...record, date: [dayjs(record.startDate, "DD/MM/YYYY"), dayjs(record.endDate, "DD/MM/YYYY")],job: record.job.props.children});
     },
   }));
   const handleOk = () => {};
